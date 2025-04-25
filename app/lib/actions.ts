@@ -111,26 +111,20 @@ export async function deleteInvoice(id: string) {
     revalidatePath('/dashboard/invoices');
 }
 
-function isAuthError(error: any): error is { type: string } {
-    return typeof error === 'object' && error !== null && 'type' in error;
-  }
-  
-  export async function authenticate(
+export async function authenticate(
     prevState: string | undefined,
     formData: FormData,
-  ) {
+) {
     try {
-      await signIn('credentials', formData);
+        await signIn('credentials', formData);
     } catch (error) {
-      if (isAuthError(error)) {
-        switch (error.type) {
-          case 'CredentialsSignin':
-            return 'Invalid credentials.';
-          default:
-            return 'Something went wrong.';
+        if (error instanceof AuthError) {
+            if (error.message === 'CredentialsSignin') {
+                return 'Invalid credentials.';
+            } else {
+                return 'Something went wrong.';
+            }
         }
-      }
-      throw error;
+        throw error;
     }
-  }
-  
+}
